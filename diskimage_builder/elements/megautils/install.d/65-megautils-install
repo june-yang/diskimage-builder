@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# Copyright 2015 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+if [ ${DIB_DEBUG_TRACE:-1} -gt 0 ]; then
+    set -x
+fi
+
+set -eu
+set -o pipefail
+
+
+DIB_MEGACLI_URL=${DIB_SSACLI_URL:-${DIB_HPSSACLI_URL:-http://mirrors.bclinux.org/bclinux/el7/product/x86_64/Packages/misc/MegaCli-8.07.14-1.el7.centos.noarch.rpm}}
+curl -k -o /tmp/megacli.rpm $DIB_MEGACLI_URL
+
+if [[ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]]; then
+    # There is no deb package for megacli. 
+    alien -i /tmp/megacli.rpm
+else
+    rpm -iv /tmp/megacli.rpm
+fi
+
+rm -f /tmp/megacli.rpm
+
+# Install megautils python module in the
+# virtual environment of ironic-python-agent.
+# This is pre-installed by
+# ironic-agent/install.d/ironic-agent-source-install/60-ironic-agent-install.
+IPA_VENV=/usr/share/ironic-python-agent/venv
+git clone https://github.com/june-yang/megautils.git /tmp/megautils
+if [[ -d "$IPA_VENV" ]]; then
+    $IPA_VENV/bin/python /tmp/megautils/setup.py install
+else
+    python /tmp/megautils/setup.py install
+fi
+
+rm -rf /tmp/megautils
