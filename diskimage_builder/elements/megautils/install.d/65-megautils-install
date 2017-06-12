@@ -22,17 +22,22 @@ set -eu
 set -o pipefail
 
 
-DIB_MEGACLI_URL=${DIB_SSACLI_URL:-${DIB_HPSSACLI_URL:-http://mirrors.bclinux.org/bclinux/el7/product/x86_64/Packages/misc/MegaCli-8.07.14-1.el7.centos.noarch.rpm}}
-curl -k -o /tmp/megacli.rpm $DIB_MEGACLI_URL
-
 if [[ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]]; then
-    # There is no deb package for megacli. 
-    alien -i /tmp/megacli.rpm
+
+    DIB_MEGACLI_URL=${DIB_SSACLI_URL:-${DIB_HPSSACLI_URL:-http://hwraid.le-vert.net/debian/pool-jessie/megacli_8.07.14-1_amd64.deb}}
+    curl -k -o /tmp/megacli.deb $DIB_MEGACLI_URL
+
+    dpkg -i /tmp/megacli.deb
+    rm -f /tmp/megacli.deb
 else
+
+    DIB_MEGACLI_URL=${DIB_SSACLI_URL:-${DIB_HPSSACLI_URL:-http://mirrors.bclinux.org/bclinux/el7/product/x86_64/Packages/misc/MegaCli-8.07.14-1.el7.centos.noarch.rpm}}
+    curl -k -o /tmp/megacli.rpm $DIB_MEGACLI_URL
+
     rpm -iv /tmp/megacli.rpm
+    rm -f /tmp/megacli.rpm
 fi
 
-rm -f /tmp/megacli.rpm
 
 # Install megautils python module in the
 # virtual environment of ironic-python-agent.
