@@ -14,3 +14,8 @@ case "$DIB_INIT_SYSTEM" in
         update-rc.d dynamic-login.init defaults
         ;;
 esac
+
+# allow init image password
+if ! [ ${DIB_INIT_PASSWD:-1} -gt 1 ]; then
+    echo "root:${DIB_INIT_PASSWD}" | chpasswd -e
+fi
