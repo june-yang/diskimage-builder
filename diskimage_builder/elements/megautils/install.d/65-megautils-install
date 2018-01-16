@@ -46,8 +46,10 @@ fi
 IPA_VENV=/usr/share/ironic-python-agent/venv
 git clone https://github.com/june-yang/megautils.git /tmp/megautils
 if [[ -d "$IPA_VENV" ]]; then
+    $IPA_VENV/bin/pip install -r /tmp/megautils/requirements.txt
     $IPA_VENV/bin/pip /tmp/megautils/setup.py install
 else
+    pip install -r /tmp/megautils/requirements.txt
     python /tmp/megautils/setup.py install
 fi
 
